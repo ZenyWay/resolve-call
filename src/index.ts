@@ -12,15 +12,48 @@
  * Limitations under the License.
  */
 ;
-export type GenericFunction<T> = (...args: any[]) => T
+export interface ResolveFactory {
+  (opts?: Partial<ResolveSpec>): Resolve
+}
 
-export default function resolve <T>(fn: (...args: any[]) => T|Promise<T>): (...args: any[]) => Promise<T> {
-  if (typeof fn !== 'function') {
-    throw new TypeError('argument is not a function')
-  }
+export interface ResolveSpec {
+  Promise: PromiseResolver
+}
 
-  return function (...args: any[]): Promise<T> {
-    return Promise.all(args.map((arg: any) => Promise.resolve(arg)))
-    .then(args => fn.apply(this, args))
+export interface PromiseResolver {
+  all: typeof Promise.all
+  resolve: typeof Promise.resolve
+}
+
+export interface Resolve {
+  <T>(fn: (...args: any[]) => T|PromiseLike<T>): (...args: any[]) => PromiseLike<T>
+}
+
+const getResolve: ResolveFactory = function (opts?: Partial<ResolveSpec>): Resolve {
+  const _Promise = getPromiseResolver(opts)
+
+  return function <T>(fn: (...args: any[]) => T|PromiseLike<T>): (...args: any[]) => PromiseLike<T> {
+    if (typeof fn !== 'function') {
+      throw new TypeError('argument is not a function')
+    }
+
+    return function (...args: any[]): PromiseLike<T> {
+      return _Promise.all(args.map((arg: any) => _Promise.resolve(arg)))
+      .then(args => fn.apply(this, args))
+    }
   }
 }
+
+function getPromiseResolver(opts?: Partial<ResolveSpec>): PromiseResolver {
+  return opts && isValidPromiseResolver(opts.Promise) ? opts.Promise : Promise
+}
+
+function isValidPromiseResolver (val?: any): val is PromiseResolver {
+  return !!val && isFunction(val.all) && isFunction(val.resolve)
+}
+
+function isFunction (val: any): val is Function {
+  return typeof val === 'function'
+}
+
+export default getResolve

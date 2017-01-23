@@ -12,15 +12,55 @@
  * Limitations under the License.
  */
 ;
-import resolve from '../src'
+import getResolve, { Resolve } from '../src'
 
 interface Result<T> {
   value: T
   error: Error
 }
 
-describe('function resolve <T>(fn: (..args: any[]) => T|Promise<T>): ' +
-'(..args: any[]) => Promise<T>', () => {
+describe('function getResolve (opts?: Partial<ResolveSpec>): Resolve', () => {
+  let resolve: Resolve
+  describe('when called without arguments', () => {
+    beforeEach(() => {
+      resolve = getResolve()
+    })
+    it('returns a function', () => {
+      expect(resolve).toEqual(jasmine.any(Function))
+    })
+  })
+  describe('when called with { Promise: { all: Function, resolve: Function } }',
+  () => {
+    let PromiseMock: {
+      all: jasmine.Spy
+      resolve: jasmine.Spy
+    }
+    beforeEach(() => {
+      PromiseMock = jasmine.createSpyObj('PromiseMock', [ 'all', 'resolve' ])
+      PromiseMock.resolve.and.returnValue('baz')
+      resolve = getResolve({ Promise: <any>PromiseMock })
+      try {
+        resolve(() => {})('foo', 'bar')
+      } catch (err) {
+        // ignore error
+      }
+    })
+    it('returns a function', () => {
+      expect(resolve).toEqual(jasmine.any(Function))
+    })
+    it('injects the given Promise implementation in the returned function', () => {
+      expect(PromiseMock.all).toHaveBeenCalledWith([ 'baz', 'baz' ])
+      expect(PromiseMock.resolve.calls.allArgs()).toEqual([['foo'],['bar']])
+    })
+  })
+})
+
+describe('function resolve <T>(fn: (..args: any[]) => T|PromiseLike<T>): ' +
+'(..args: any[]) => PromiseLike<T>', () => {
+  let resolve: Resolve
+  beforeEach(() => {
+    resolve = getResolve()
+  })
   describe('when called with a function', () => {
     let test: Function
     beforeEach(() => {

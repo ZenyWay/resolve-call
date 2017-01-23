@@ -10,7 +10,8 @@ and write async code that reads like synchronous code.
 
 # <a name="example"></a> example
 ```ts
-import resolve from '../../src'
+import getResolve from '../../src'
+const resolve = getResolve() // use default Promise
 const { fetch } = require('fetch-ponyfill')()
 import debug = require('debug')
 const log = resolve(debug('example:'))
@@ -27,26 +28,20 @@ log(user) // { "dob": "...", "email": "...", "name": { ... } }
 ```
 the files of this example are available [here](./spec/example).
 
-a live version of this example can be viewed [here](https://cdn.rawgit.com/ZenyWay/resolve-call/v1.0.0/spec/example/index.html)
-in the browser console,
+a live version of this example can be viewed [in the browser console](https://cdn.rawgit.com/ZenyWay/resolve-call/v2.0.0/spec/example/index.html),
 or by cloning this repository and running the following commands from a terminal:
 ```bash
 npm install
 npm run example
 ```
 
-# <a name="api"></a> API v1.0 stable
+# <a name="api"></a> API v2.0 stable
 `ES5` and [`Typescript`](http://www.typescriptlang.org/) compatible.
 coded in `Typescript 2`, transpiled to `ES5`.
 
-```ts
-function resolve <T>(fn: (...args: any[]) => T|Promise<T>): (...args: any[]) => Promise<T>
-```
-
-throws a `TypeError` "argument is not a function" when `fn` is not a function.
-
-for a detailed specification of the API,
-run the [unit tests](https://cdn.rawgit.com/ZenyWay/resolve-call/v1.0.0/spec/web/index.html)
+for a detailed specification of the API, read the corresponding
+[type definitions](./src/index.ts#L15-L30),
+or run the [unit tests](https://cdn.rawgit.com/ZenyWay/resolve-call/v2.0.0/spec/web/index.html)
 in your browser.
 
 # <a name="contributing"></a> CONTRIBUTING

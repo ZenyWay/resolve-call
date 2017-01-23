@@ -1,6 +1,6 @@
 {
   "name": "resolve-call",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "`Promise.resolve` for functions",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -12,7 +12,8 @@
  * Limitations under the License.
  */
 ;
-import resolve from '../../src'
+import getResolve from '../../src'
+const resolve = getResolve()
 const { fetch } = require('fetch-ponyfill')()
 import debug = require('debug')
 const log = resolve(debug('example:'))
