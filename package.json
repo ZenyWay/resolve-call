@@ -1,6 +1,6 @@
 {
   "name": "resolve-call",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "`Promise.resolve` for functions",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -46,9 +46,7 @@
     "url": "https://github.com/zenyway/resolve-call/issues"
   },
   "homepage": "https://github.com/zenyway/resolve-call#readme",
-  "dependencies": {
-    "most": "^1.1.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/debug": "0.0.29",
     "@types/jasmine": "^2.5.41",
