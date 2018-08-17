@@ -1,5 +1,7 @@
-/*
- * Copyright 2017 Stephane M. Catala
+/**
+ * Copyright 2018 Stephane M. Catala
+ * @author Stephane M. Catala
+ * @license Apache@2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * Limitations under the License.
  */
-;
+//
 import getResolve, { Resolve } from '../src'
 
 interface Result<T> {
@@ -38,9 +40,9 @@ describe('function getResolve (opts?: Partial<ResolveSpec>): Resolve', () => {
     beforeEach(() => {
       PromiseMock = jasmine.createSpyObj('PromiseMock', [ 'all', 'resolve' ])
       PromiseMock.resolve.and.returnValue('baz')
-      resolve = getResolve({ Promise: <any>PromiseMock })
+      resolve = getResolve({ Promise: PromiseMock as any })
       try {
-        resolve(() => {})('foo', 'bar')
+        resolve(() => { /* no operation */ })('foo', 'bar')
       } catch (err) {
         // ignore error
       }
@@ -64,7 +66,7 @@ describe('function resolve <T>(fn: (..args: any[]) => T|PromiseLike<T>): ' +
   describe('when called with a function', () => {
     let test: Function
     beforeEach(() => {
-      test = () => resolve(() => {})
+      test = () => resolve(() => { /* no operation */ })
     })
     it('returns a function', () => {
       expect(test).not.toThrow()
@@ -106,9 +108,9 @@ describe('function resolve <T>(fn: (..args: any[]) => T|PromiseLike<T>): ' +
       expect(result).toBe('foo')
     })
     it('binds the original function\'s `this` to its own `this`', () => {
-      expect(fn.calls.all()).toEqual([
+      expect(fn.calls.all()).toContain(
         jasmine.objectContaining({ object: 'this' })
-      ])
+      )
     })
   })
 })

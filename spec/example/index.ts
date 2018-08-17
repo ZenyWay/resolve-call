@@ -1,5 +1,7 @@
-/*
- * Copyright 2017 Stephane M. Catala
+/**
+ * Copyright 2018 Stephane M. Catala
+ * @author Stephane M. Catala
+ * @license Apache@2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,19 +13,23 @@
  * See the License for the specific language governing permissions and
  * Limitations under the License.
  */
-;
+//
 import getResolve from '../../src'
-const resolve = getResolve()
 const { fetch } = require('fetch-ponyfill')()
-import debug = require('debug')
-const log = resolve(debug('example:'))
+import logsync from './console'
+const resolve = getResolve()
+const log = resolve(logsync('example:'))
 
-const getJson = resolve((result: any) => // extract JSON from fetch result
-  result && (typeof result.json === 'function') && result.json())
+// extract JSON from fetch result
+const getJson = resolve(
+  (result: any) => result && (typeof result.json === 'function') && result.json()
+)
 
-const getUser = resolve((users: any) => // extract user object from randomuser api result
-  Array.isArray(users.results) && users.results[0])
+// extract user object from randomuser api result
+const getUser = resolve(
+  ({ results }) => Array.isArray(results) && results[0]
+)
 
-const users = getJson(fetch('https://randomuser.me/api/?inc=name,email,dob&noinfo')) // Promise
-const user = getUser(users) // Promise
+const result = getJson(fetch('https://randomuser.me/api/?inc=name,email,dob&noinfo')) // Promise
+const user = getUser(result) // Promise
 log(user) // { "dob": "...", "email": "...", "name": { ... } }

@@ -1,5 +1,7 @@
-/*
- * Copyright 2017 Stephane M. Catala
+/**
+ * Copyright 2018 Stephane M. Catala
+ * @author Stephane M. Catala
+ * @license Apache@2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * Limitations under the License.
  */
-;
+//
 export interface ResolveFactory {
   (opts?: Partial<ResolveSpec>): Resolve
 }
@@ -26,25 +28,32 @@ export interface PromiseResolver {
 }
 
 export interface Resolve {
-  <T>(fn: (...args: any[]) => T|PromiseLike<T>): (...args: any[]) => PromiseLike<T>
+  <T>(fn: (...args: any[]) => Eventual<T>): (...args: any[]) => PromiseLike<T>
 }
 
-const getResolve: ResolveFactory = function (opts?: Partial<ResolveSpec>): Resolve {
+export type Eventual<T> = T | PromiseLike<T>
+
+const getResolve: ResolveFactory = function (
+  opts?: Partial<ResolveSpec>
+): Resolve {
   const _Promise = getPromiseResolver(opts)
 
-  return function <T>(fn: (...args: any[]) => T|PromiseLike<T>): (...args: any[]) => PromiseLike<T> {
-    if (typeof fn !== 'function') {
+  return function <T>(
+    fn: (...args: any[]) => Eventual<T>
+  ): (...args: any[]) => PromiseLike<T> {
+    if ((process.env.NODE_ENV !== 'production') && (typeof fn !== 'function')) {
       throw new TypeError('argument is not a function')
     }
 
     return function (...args: any[]): PromiseLike<T> {
       return _Promise.all(args.map((arg: any) => _Promise.resolve(arg)))
-      .then(args => fn.apply(this, args))
+      .then(args =>
+        fn.apply(this, args))
     }
   }
 }
 
-function getPromiseResolver(opts?: Partial<ResolveSpec>): PromiseResolver {
+function getPromiseResolver (opts?: Partial<ResolveSpec>): PromiseResolver {
   return opts && isValidPromiseResolver(opts.Promise) ? opts.Promise : Promise
 }
 
